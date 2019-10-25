@@ -2,6 +2,7 @@
 Find Philosophy by following the first link on each page
 that is *not* in parentheses.
 It needs work, but it does it most of the time.
+Adding another line to the module docstring to test out GitHub stuff.
 '''
 import requests
 from bs4 import BeautifulSoup
@@ -12,8 +13,8 @@ WIKITEST = ''
 WIKIBASE = 'https://en.wikipedia.org'
 PRINTURLS = False
 PRINTTAGS = False
-MAXPAGES = 40
-MAXLINKS = 5
+MAXPAGES = 45
+MAXLINKS = 4
 
 
 def get_page(url, printurl=False):
