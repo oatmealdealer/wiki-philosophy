@@ -11,17 +11,18 @@ WIKI = 'https://en.wikipedia.org/wiki/Main_Page'
 WIKIRAND = 'https://en.wikipedia.org/wiki/Special:Random'
 WIKITEST = ''
 WIKIBASE = 'https://en.wikipedia.org'
-PRINTURLS = False
-PRINTTAGS = False
-MAXPAGES = 45
-MAXLINKS = 4
+PRINTURLS = True
+PRINTTAGS = True
+MAXPAGES = 1
+MAXLINKS = 5
+DEBUG = True
 
 
-def get_page(url, printurl=False):
+def get_page(url):
     '''Get a soup object from the page at a given url.'''
     request = requests.get(url)  # Get the page via requests
 
-    if printurl:  # We may potentially want to print the url to console
+    if DEBUG:  # We may potentially want to print the url to console
         print('Getting page from %s' % url)
 
     soup = BeautifulSoup(request.text, 'lxml')  # Parse the text with BS4
@@ -42,7 +43,8 @@ def is_body_link(tag):
     '''Check if a given tag is an article body link.
 
     It needs to be valid for the purpose of the game -
-    meaning not in parentheses or italics.'''
+    meaning not in parentheses or italics.
+    '''
     test_args = []
 
     is_a = tag.name == 'a'  # Make sure it's an <a> tag
@@ -58,14 +60,14 @@ def is_body_link(tag):
         in_wiki = tag['href'][0:6] == '/wiki/'
         test_args.append(in_wiki)
 
-    in_par = not inParen(tag)
+    in_par = not is_in_paren(tag)
     test_args.append(in_par)
 
     in_i = not is_in_italics(tag)
     test_args.append(in_i)
 
-    if PRINTTAGS:
-        print(tag)
+    if DEBUG:
+        print('Full tag is %s' % tag)
         # print(test_args)
 
     return all(test_args)
@@ -86,7 +88,7 @@ def is_in_italics(tag):
     return tag.parent.name == 'i' or tag.i == 'i'
 
 
-def inParen(tag):
+def is_in_paren(tag):
     '''This function is a huge pain.
     It checks if a tag is enclosed by parentheses.
     You wouldn't believe how annoying that is.
@@ -237,7 +239,7 @@ def findPhilosophy():
 
                 print('Link title is "%s" and it %s a body link.\nLink URL is %s' % (link.text, isbody, link['href']))
                 
-                # if inParen(link) == True:
+                # if is_in_paren(link) == True:
                 #     print('Link is in parentheses')
                 # else:
                 #     print('Link is not in parentheses')
