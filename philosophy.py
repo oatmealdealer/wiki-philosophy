@@ -1,6 +1,8 @@
 '''Using the Article class defined in wiki.py, find Philosophy.'''
 
-import wiki, sys
+import sys
+import wiki
+
 
 class Philosophy:
     '''
@@ -8,7 +10,8 @@ class Philosophy:
     I get it - this doesnt need to be its own object.
     I'm just practicing. Relax.'''
 
-    # These constants are already in wiki.py, but we may as well duplicate them here
+    # These constants are already in wiki.py
+    # but we may as well duplicate them here
     WIKIRAND = 'https://en.wikipedia.org/wiki/Special:Random'
     WIKIBASE = 'https://en.wikipedia.org'
     pages = []
@@ -28,12 +31,10 @@ class Philosophy:
         self._result = None
         self._result = self.result
 
-
-
     @property
     def result(self):
         '''Either return our result or find out what it is.'''
-        if not self._result is None:
+        if self._result is not None:
             return self._result
 
         # Another list
@@ -42,7 +43,6 @@ class Philosophy:
 
         # First, record our starting position
         article = self.article
-
 
         urls.append(article.url)
         self.pages.append(article.title)
@@ -53,7 +53,8 @@ class Philosophy:
         # Keep going as long as we aren't hitting the max
         while i < self.maxpages:
             i += 1
-            # Get the article from the first body link and add it to our visited pages
+            # Get the article from the first body link
+            # then, add it to our visited pages
             first_link = first_body_link(article.body)
 
             if first_link is None:
@@ -76,13 +77,16 @@ class Philosophy:
                 success = True
                 break
 
-        print('%s after %s pages' % ('Succeeded' if success else 'Failed', i))
-        return '%s: %s' % (self.article.title, 'Success' if success else 'Failure') + ' after %s pages' % i
+        success_fail_msg = 'Success' if success else 'Failure'
+        message = '%s: %s after %s pages' % (self.article.title, success_fail_msg, i)
+        print(message)
+        return message
 
 
 def first_body_link(body):
     '''
-    Pass in a beautifulsoup object and find the first link that matches the criteria.
+    1. Pass in a beautifulsoup object
+    2. Find the first link that matches the criteria.
     The function assumes it's the .body property of the Article class.
     '''
 
@@ -91,8 +95,10 @@ def first_body_link(body):
         Check if a link meets the criteria for the Philosophy game.
         1. It's an <a> tag, obviously
         2. It has an href attribute
-        3. It's a descendant of a <p> tag, meaning it's actually within some body text
-        4. It's a link to another Wikipedia page (The first 6 chars of the href are '/wiki/')
+        3. It's a descendant of a <p> tag,
+        meaning it's actually within some body text
+        4. It's a link to another Wikipedia page
+        (The first 6 chars of the href are '/wiki/')
         5. It's not in italics.
         6. It's NOT enclosed within parentheses. This function is the WORST.
         '''
@@ -101,7 +107,7 @@ def first_body_link(body):
             '''
             Figure out if a tag is enclosed within parentheses.
             Since the parentheses themselves won't be within an <a> tag,
-            we can just check if the text surrounding the tag contains parentheses.
+            we just check if the text surrounding the tag contains parentheses.
             '''
             # Our booleans to show if we've found a left and right parenthesis
             # on the left and right of our tag, respectively
@@ -109,13 +115,16 @@ def first_body_link(body):
             next_paren = False
 
             # Our elements to iterate through.
-            # Including non-elements, i.e. text that is a sibling of our tag within a parent
+            # Including non-elements,
+            # i.e. text that is a sibling of our tag within a parent
             prev_elements = tag.previous_elements
             next_elements = tag.next_elements
 
             # We only want to read text within a paragraph.
-            # Parentheses on wikipedia will not be *part* of a link, only surrounding them
-            # Note the [::-1] in the first loop - We want our find() to iterate *backwards*
+            # Parentheses on wikipedia will not be *part* of a link,
+            # only surrounding them
+            # Note the [::-1] in the first loop -
+            # We want our find() to iterate *backwards*
             # through the text to the left of our link, not forwards
             for element in prev_elements:
                 if element.name is None and element.parent.name == 'p':
@@ -150,31 +159,24 @@ def first_body_link(body):
 
             return prev_paren and next_paren
 
-        # Store our test results in a list for safekeeping.
-        # As we run each test, we append the result to the list
-        test_args = []
-
-
         # 1. Check if it's an <a> tag
         is_a = tag.name == 'a'
 
         # For each criteria, we should immediately return False if it's not met
-        # Essentially, this function is a big AND() statement and we want to short-circuit it
+        # Essentially, this function is a big AND() statement
+        # and we want to short-circuit it
         if not is_a:
             return False
-        test_args.append(is_a)
 
         # 2. Check if it has an href
         has_href = tag.has_attr('href')
         if not has_href:
             return False
-        test_args.append(has_href)
 
         # 3. Descendant of a <p> tag
         in_p = tag.parent.name == 'p'
         if not in_p:
             return False
-        test_args.append(in_p)
 
         # 4. Links to a wikipedia page
         in_wiki = tag['href'][0:6] == '/wiki/'
@@ -185,15 +187,12 @@ def first_body_link(body):
         in_italics = tag.parent.name == 'i' or tag.i == 'i'
         if in_italics:
             return False
-        test_args.append(not in_italics)
 
         in_paren = is_in_parentheses(tag)
         if in_paren:
             return False
-        test_args.append(not in_paren)
 
-        return all(test_args)
-
+        return True
 
     # Grab every <a> tag from the article content
     links = body.find_all('a')
@@ -203,18 +202,27 @@ def first_body_link(body):
             # As soon as we find a link that meets our criteria, get the URL
             return link['href']
 
-    # If we weren't able to find one for whatever reason, we should return None regardless.
+    # If we weren't able to find one for whatever reason,
+    # we should return None regardless.
     return None
 
+
 def main(num=10):
-    '''If the script is run on its own, just run the game 10 times for fun and exit.'''
-    record = []
+    '''
+    If the script is run on its own,
+    just run the game 10 times for fun and exit.
+    '''
+    records = []
 
-    for i in range(num):
-        record.append(Philosophy().result)
+    i = 0
 
-    for r in record:
-        print(r)
+    while i < num:
+        i += 1
+        records.append(Philosophy().result)
+
+    for record in records:
+        print(record)
+
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:

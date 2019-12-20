@@ -5,6 +5,7 @@ Includes functions for getting various information out of articles.
 import requests
 from bs4 import BeautifulSoup
 
+
 class Article:
     '''
     Object class for a Wikipedia article.
@@ -21,19 +22,11 @@ class Article:
         else:
             self.url = url
 
-        # For the time being, we will manually invoke the getter on all our properties
-        # by setting them to None and then trying to access them.
-        # This isn't really necessary, though.
-        # We could just set them all to None and let nature run its course.
         self._page = None
-        self._page = self.page
 
         self._title = None
-        self._title = self.title
 
         self._body = None
-        self._body = self.body
-
 
     @property
     def page(self):
@@ -41,7 +34,7 @@ class Article:
         Return the BeautifulSoup object for the page if defined.
         If not defined, request the page and instantiate the soup object.
         '''
-        if not self._page is None:
+        if self._page is not None:
             return self._page
 
         request = requests.get(self.url)
@@ -50,27 +43,25 @@ class Article:
         self._page = soup
         return self._page
 
-
     @property
     def title(self):
         '''
         Return the title of the page if defined.
         If not defined, find the title in the page.
         '''
-        if not self._title is None:
+        if self._title is not None:
             return self._title
 
         self._title = self.page.find('h1', class_='firstHeading').text
         return self._title
 
-
     @property
     def body(self):
         '''
-        Return the portion of the BeautifulSoup object that constitutes the article's body.
+        Extract the article body from the BS object.
         If not defined, find it within the page.
         '''
-        if not self._body is None:
+        if self._body is not None:
             return self._body
 
         self._body = self.page.find('div', class_='mw-parser-output')
